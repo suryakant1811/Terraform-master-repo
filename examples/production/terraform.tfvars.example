@@ -1,0 +1,45 @@
+aws_region  = "us-east-1"
+environment = "prod"
+vpc_cidr    = "10.0.0.0/16"
+
+public_subnets = {
+  public-01 = {
+    cidr_block        = "10.0.1.0/24"
+    availability_zone = "us-east-1a"
+  }
+  public-02 = {
+    cidr_block        = "10.0.2.0/24"
+    availability_zone = "us-east-1b"
+  }
+}
+
+private_subnets = {
+  private-01 = {
+    cidr_block        = "10.0.11.0/24"
+    availability_zone = "us-east-1a"
+  }
+  private-02 = {
+    cidr_block        = "10.0.4.0/24"
+    availability_zone = "us-east-1b"
+  }
+}
+
+ecr_repository_names = [
+  "prod-api-gateway",
+  "prod-account-service",
+  "prod-wallet-service",
+  "prod-payment-service",
+  "prod-settlement-service",
+]
+
+database_name     = "prodmysqldb"
+database_username = "admin"
+
+# Replace this with your own fixed public IP. Never use 0.0.0.0/0 for production.
+eks_public_access_cidrs = ["65.0.138.49/32"]
+
+common_tags = {
+  ManagedBy   = "Terraform"
+  Project     = "paywave"
+  Environment = "production"
+}
