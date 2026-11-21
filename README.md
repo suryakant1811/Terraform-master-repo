@@ -56,6 +56,7 @@ module "vpc" {
 
   name            = "paywave-prod-vpc"
   vpc_cidr        = var.vpc_cidr
+  azs             = var.azs
   public_subnets  = var.public_subnets
   private_subnets = var.private_subnets
 }
@@ -69,8 +70,8 @@ module "rds" {
 
   name                = "paywave-prod-mysql"
   vpc_id              = module.vpc.vpc_id
-  subnet_ids          = values(module.vpc.private_subnet_ids)
-  allowed_cidr_blocks = values(module.vpc.private_subnet_cidrs)
+  subnet_ids          = module.vpc.private_subnet_ids
+  allowed_cidr_blocks = module.vpc.private_subnet_cidrs
   database_name       = var.database_name
   username            = var.database_username
   password            = var.database_password
@@ -86,7 +87,7 @@ module "eks" {
   source = "git::https://github.com/YOUR_ORG/terraform-aws-modules.git//aws-eks?ref=v1.0.0"
 
   cluster_name = "paywave-prod-eks"
-  subnet_ids   = values(module.vpc.private_subnet_ids)
+  subnet_ids   = module.vpc.private_subnet_ids
 }
 
 module "ec2" {
@@ -94,7 +95,7 @@ module "ec2" {
 
   name      = "paywave-prod-app"
   ami_id    = var.ec2_ami_id
-  subnet_id = module.vpc.private_subnet_ids["private-01"]
+  subnet_id = module.vpc.private_subnet_ids[0]
   vpc_id    = module.vpc.vpc_id
 
   ingress_rules = [{

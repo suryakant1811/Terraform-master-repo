@@ -9,18 +9,18 @@ output "vpc_cidr" {
 }
 
 output "public_subnet_ids" {
-  description = "Public subnet IDs keyed by their input names."
-  value       = { for key, subnet in aws_subnet.public : key => subnet.id }
+  description = "Public subnet IDs in the same order as public_subnets."
+  value       = aws_subnet.public[*].id
 }
 
 output "private_subnet_ids" {
-  description = "Private subnet IDs keyed by their input names."
-  value       = { for key, subnet in aws_subnet.private : key => subnet.id }
+  description = "Private subnet IDs in the same order as private_subnets."
+  value       = aws_subnet.private[*].id
 }
 
 output "private_subnet_cidrs" {
-  description = "Private subnet CIDRs keyed by their input names."
-  value       = { for key, subnet in aws_subnet.private : key => subnet.cidr_block }
+  description = "Private subnet CIDRs in the same order as private_subnets."
+  value       = aws_subnet.private[*].cidr_block
 }
 
 output "nat_gateway_id" {

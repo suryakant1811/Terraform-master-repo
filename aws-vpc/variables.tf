@@ -8,29 +8,33 @@ variable "vpc_cidr" {
   type        = string
 }
 
+variable "azs" {
+  description = "Availability Zones used by the public and private subnets."
+  type        = list(string)
+
+  validation {
+    condition     = length(var.azs) > 0
+    error_message = "Provide at least one Availability Zone."
+  }
+}
+
 variable "public_subnets" {
-  description = "Public subnets keyed by a stable name."
-  type = map(object({
-    cidr_block        = string
-    availability_zone = string
-  }))
+  description = "Public subnet CIDR blocks. Each index is matched to the same index in azs."
+  type        = list(string)
 
   validation {
     condition     = length(var.public_subnets) > 0
-    error_message = "At least one public subnet is required."
+    error_message = "Provide at least one public subnet CIDR block."
   }
 }
 
 variable "private_subnets" {
-  description = "Private subnets keyed by a stable name."
-  type = map(object({
-    cidr_block        = string
-    availability_zone = string
-  }))
+  description = "Private subnet CIDR blocks. Each index is matched to the same index in azs."
+  type        = list(string)
 
   validation {
     condition     = length(var.private_subnets) > 0
-    error_message = "At least one private subnet is required."
+    error_message = "Provide at least one private subnet CIDR block."
   }
 }
 
@@ -40,14 +44,14 @@ variable "enable_nat_gateway" {
   default     = true
 }
 
-variable "nat_gateway_subnet_key" {
-  description = "Public subnet key in which to place the NAT gateway. Null uses the first sorted key."
-  type        = string
-  default     = null
+variable "nat_gateway_subnet_index" {
+  description = "Index of the public subnet in which to place the NAT gateway."
+  type        = number
+  default     = 0
 
   validation {
-    condition     = var.nat_gateway_subnet_key == null ? true : contains(keys(var.public_subnets), var.nat_gateway_subnet_key)
-    error_message = "nat_gateway_subnet_key must be a key from public_subnets."
+    condition     = var.nat_gateway_subnet_index >= 0 && var.nat_gateway_subnet_index < length(var.public_subnets)
+    error_message = "nat_gateway_subnet_index must identify an item in public_subnets."
   }
 }
 

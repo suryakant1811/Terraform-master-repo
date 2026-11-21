@@ -7,6 +7,7 @@ module "vpc" {
 
   name            = "${local.name}-vpc"
   vpc_cidr        = var.vpc_cidr
+  azs             = var.azs
   public_subnets  = var.public_subnets
   private_subnets = var.private_subnets
   tags            = var.common_tags
@@ -24,8 +25,8 @@ module "rds" {
 
   name                = "${local.name}-mysql"
   vpc_id              = module.vpc.vpc_id
-  subnet_ids          = values(module.vpc.private_subnet_ids)
-  allowed_cidr_blocks = values(module.vpc.private_subnet_cidrs)
+  subnet_ids          = module.vpc.private_subnet_ids
+  allowed_cidr_blocks = module.vpc.private_subnet_cidrs
 
   engine         = "mysql"
   instance_class = "db.t3.micro"
@@ -44,7 +45,7 @@ module "eks" {
   source = "../../aws-eks"
 
   cluster_name = "${local.name}-eks"
-  subnet_ids   = values(module.vpc.private_subnet_ids)
+  subnet_ids   = module.vpc.private_subnet_ids
 
   endpoint_private_access = true
   endpoint_public_access  = length(var.eks_public_access_cidrs) > 0
