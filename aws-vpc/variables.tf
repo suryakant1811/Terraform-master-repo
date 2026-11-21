@@ -1,6 +1,7 @@
 variable "name" {
   description = "Name prefix used for VPC resources."
   type        = string
+  default     = "vpc"
 }
 
 variable "vpc_cidr" {
@@ -8,42 +9,43 @@ variable "vpc_cidr" {
   type        = string
 }
 
+variable "azs" {
+  description = "Availability Zones assigned to subnet CIDRs by matching list index."
+  type        = list(string)
+
+  validation {
+    condition     = length(var.azs) > 0
+    error_message = "Provide at least one Availability Zone."
+  }
+}
+
 variable "public_subnets" {
-  description = "Public subnets keyed by a stable name."
-  type = map(object({
-    cidr_block        = string
-    availability_zone = string
-  }))
+  description = "Public subnet CIDR blocks corresponding by index to azs."
+  type        = list(string)
 
   validation {
     condition     = length(var.public_subnets) > 0
-    error_message = "Provide at least one public subnet."
+    error_message = "Provide at least one public subnet CIDR block."
   }
 }
 
 variable "private_subnets" {
-  description = "Private subnets keyed by a stable name."
-  type = map(object({
-    cidr_block        = string
-    availability_zone = string
-  }))
+  description = "Private subnet CIDR blocks corresponding by index to azs."
+  type        = list(string)
 
   validation {
     condition     = length(var.private_subnets) > 0
-    error_message = "Provide at least one private subnet."
+    error_message = "Provide at least one private subnet CIDR block."
   }
 }
 
 variable "database_subnets" {
-  description = "Database subnets keyed by a stable name."
-  type = map(object({
-    cidr_block        = string
-    availability_zone = string
-  }))
+  description = "Database subnet CIDR blocks corresponding by index to azs."
+  type        = list(string)
 
   validation {
     condition     = length(var.database_subnets) > 0
-    error_message = "Provide at least one database subnet."
+    error_message = "Provide at least one database subnet CIDR block."
   }
 }
 
@@ -54,7 +56,7 @@ variable "enable_nat_gateway" {
 }
 
 variable "nat_gateway_subnet_key" {
-  description = "Public subnet key in which to place the NAT gateway. Null uses the first sorted key."
+  description = "Generated public subnet key (for example, public-01) in which to place the NAT gateway. Null uses public-01."
   type        = string
   default     = null
 }

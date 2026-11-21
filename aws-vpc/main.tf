@@ -1,6 +1,27 @@
 locals {
-  default_nat_gateway_subnet_key = sort(keys(var.public_subnets))[0]
-  nat_gateway_subnet_key = var.nat_gateway_subnet_key != null && contains(keys(var.public_subnets), var.nat_gateway_subnet_key) ? (
+  public_subnets = {
+    for index, cidr_block in var.public_subnets : format("public-%02d", index + 1) => {
+      cidr_block        = cidr_block
+      availability_zone = var.azs[index % length(var.azs)]
+    }
+  }
+
+  private_subnets = {
+    for index, cidr_block in var.private_subnets : format("private-%02d", index + 1) => {
+      cidr_block        = cidr_block
+      availability_zone = var.azs[index % length(var.azs)]
+    }
+  }
+
+  database_subnets = {
+    for index, cidr_block in var.database_subnets : format("database-%02d", index + 1) => {
+      cidr_block        = cidr_block
+      availability_zone = var.azs[index % length(var.azs)]
+    }
+  }
+
+  default_nat_gateway_subnet_key = sort(keys(local.public_subnets))[0]
+  nat_gateway_subnet_key = var.nat_gateway_subnet_key != null && contains(keys(local.public_subnets), var.nat_gateway_subnet_key) ? (
     var.nat_gateway_subnet_key
   ) : local.default_nat_gateway_subnet_key
 }
@@ -13,10 +34,27 @@ resource "aws_vpc" "this" {
   tags = merge(var.tags, {
     Name = var.name
   })
+
+  lifecycle {
+    precondition {
+      condition     = length(var.public_subnets) == length(var.azs)
+      error_message = "public_subnets must contain one CIDR block for each item in azs."
+    }
+
+    precondition {
+      condition     = length(var.private_subnets) == length(var.azs)
+      error_message = "private_subnets must contain one CIDR block for each item in azs."
+    }
+
+    precondition {
+      condition     = length(var.database_subnets) == length(var.azs)
+      error_message = "database_subnets must contain one CIDR block for each item in azs."
+    }
+  }
 }
 
 resource "aws_subnet" "public" {
-  for_each = var.public_subnets
+  for_each = local.public_subnets
 
   vpc_id                  = aws_vpc.this.id
   cidr_block              = each.value.cidr_block
@@ -30,7 +68,7 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_subnet" "private" {
-  for_each = var.private_subnets
+  for_each = local.private_subnets
 
   vpc_id                  = aws_vpc.this.id
   cidr_block              = each.value.cidr_block
@@ -44,7 +82,7 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_subnet" "database" {
-  for_each = var.database_subnets
+  for_each = local.database_subnets
 
   vpc_id                  = aws_vpc.this.id
   cidr_block              = each.value.cidr_block
@@ -98,7 +136,7 @@ resource "aws_eip" "nat" {
 
   lifecycle {
     precondition {
-      condition     = var.nat_gateway_subnet_key == null ? true : contains(keys(var.public_subnets), var.nat_gateway_subnet_key)
+      condition     = var.nat_gateway_subnet_key == null ? true : contains(keys(local.public_subnets), var.nat_gateway_subnet_key)
       error_message = "nat_gateway_subnet_key must be a key from public_subnets."
     }
   }

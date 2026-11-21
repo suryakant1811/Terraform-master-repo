@@ -9,27 +9,27 @@ output "vpc_cidr" {
 }
 
 output "public_subnet_ids" {
-  description = "Public subnet IDs keyed by their input names."
+  description = "Public subnet IDs keyed as public-01, public-02, and so on."
   value       = { for key, subnet in aws_subnet.public : key => subnet.id }
 }
 
 output "private_subnet_ids" {
-  description = "Private subnet IDs keyed by their input names."
+  description = "Private subnet IDs keyed as private-01, private-02, and so on."
   value       = { for key, subnet in aws_subnet.private : key => subnet.id }
 }
 
 output "private_subnet_cidrs" {
-  description = "Private subnet CIDRs keyed by their input names."
+  description = "Private subnet CIDRs keyed as private-01, private-02, and so on."
   value       = { for key, subnet in aws_subnet.private : key => subnet.cidr_block }
 }
 
 output "database_subnet_ids" {
-  description = "Database subnet IDs keyed by their input names."
+  description = "Database subnet IDs keyed as database-01, database-02, and so on."
   value       = { for key, subnet in aws_subnet.database : key => subnet.id }
 }
 
 output "database_subnet_cidrs" {
-  description = "Database subnet CIDRs keyed by their input names."
+  description = "Database subnet CIDRs keyed as database-01, database-02, and so on."
   value       = { for key, subnet in aws_subnet.database : key => subnet.cidr_block }
 }
 
