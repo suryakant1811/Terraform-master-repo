@@ -8,33 +8,42 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "azs" {
-  description = "Availability Zones used by the public and private subnets."
-  type        = list(string)
-
-  validation {
-    condition     = length(var.azs) > 0
-    error_message = "Provide at least one Availability Zone."
-  }
-}
-
 variable "public_subnets" {
-  description = "Public subnet CIDR blocks. Each index is matched to the same index in azs."
-  type        = list(string)
+  description = "Public subnets keyed by a stable name."
+  type = map(object({
+    cidr_block        = string
+    availability_zone = string
+  }))
 
   validation {
     condition     = length(var.public_subnets) > 0
-    error_message = "Provide at least one public subnet CIDR block."
+    error_message = "Provide at least one public subnet."
   }
 }
 
 variable "private_subnets" {
-  description = "Private subnet CIDR blocks. Each index is matched to the same index in azs."
-  type        = list(string)
+  description = "Private subnets keyed by a stable name."
+  type = map(object({
+    cidr_block        = string
+    availability_zone = string
+  }))
 
   validation {
     condition     = length(var.private_subnets) > 0
-    error_message = "Provide at least one private subnet CIDR block."
+    error_message = "Provide at least one private subnet."
+  }
+}
+
+variable "database_subnets" {
+  description = "Database subnets keyed by a stable name."
+  type = map(object({
+    cidr_block        = string
+    availability_zone = string
+  }))
+
+  validation {
+    condition     = length(var.database_subnets) > 0
+    error_message = "Provide at least one database subnet."
   }
 }
 
@@ -44,15 +53,16 @@ variable "enable_nat_gateway" {
   default     = true
 }
 
-variable "nat_gateway_subnet_index" {
-  description = "Index of the public subnet in which to place the NAT gateway."
-  type        = number
-  default     = 0
+variable "nat_gateway_subnet_key" {
+  description = "Public subnet key in which to place the NAT gateway. Null uses the first sorted key."
+  type        = string
+  default     = null
+}
 
-  validation {
-    condition     = var.nat_gateway_subnet_index >= 0 && var.nat_gateway_subnet_index < length(var.public_subnets)
-    error_message = "nat_gateway_subnet_index must identify an item in public_subnets."
-  }
+variable "enable_database_nat_route" {
+  description = "Whether the database route table receives a default route through the NAT gateway."
+  type        = bool
+  default     = false
 }
 
 variable "enable_dns_support" {

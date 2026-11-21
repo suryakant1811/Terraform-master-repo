@@ -9,21 +9,46 @@ output "vpc_cidr" {
 }
 
 output "public_subnet_ids" {
-  description = "Public subnet IDs in the same order as public_subnets."
-  value       = aws_subnet.public[*].id
+  description = "Public subnet IDs keyed by their input names."
+  value       = { for key, subnet in aws_subnet.public : key => subnet.id }
 }
 
 output "private_subnet_ids" {
-  description = "Private subnet IDs in the same order as private_subnets."
-  value       = aws_subnet.private[*].id
+  description = "Private subnet IDs keyed by their input names."
+  value       = { for key, subnet in aws_subnet.private : key => subnet.id }
 }
 
 output "private_subnet_cidrs" {
-  description = "Private subnet CIDRs in the same order as private_subnets."
-  value       = aws_subnet.private[*].cidr_block
+  description = "Private subnet CIDRs keyed by their input names."
+  value       = { for key, subnet in aws_subnet.private : key => subnet.cidr_block }
+}
+
+output "database_subnet_ids" {
+  description = "Database subnet IDs keyed by their input names."
+  value       = { for key, subnet in aws_subnet.database : key => subnet.id }
+}
+
+output "database_subnet_cidrs" {
+  description = "Database subnet CIDRs keyed by their input names."
+  value       = { for key, subnet in aws_subnet.database : key => subnet.cidr_block }
 }
 
 output "nat_gateway_id" {
   description = "NAT gateway ID, or null when disabled."
   value       = try(aws_nat_gateway.this[0].id, null)
+}
+
+output "public_route_table_id" {
+  description = "ID of the public route table."
+  value       = aws_route_table.public.id
+}
+
+output "private_route_table_id" {
+  description = "ID of the private route table."
+  value       = aws_route_table.private.id
+}
+
+output "database_route_table_id" {
+  description = "ID of the database route table."
+  value       = aws_route_table.database.id
 }
