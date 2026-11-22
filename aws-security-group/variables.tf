@@ -17,16 +17,16 @@ variable "description" {
 variable "ingress_rules" {
   description = "Inbound rules for the security group."
   type = list(object({
-    description                  = optional(string, "Managed by Terraform")
-    from_port                    = number
-    to_port                      = number
-    protocol                     = string
-    cidr_blocks                  = optional(list(string), [])
-    ipv6_cidr_blocks             = optional(list(string), [])
-    prefix_list_ids              = optional(list(string), [])
+    description               = optional(string, "Managed by Terraform")
+    from_port                 = number
+    to_port                   = number
+    protocol                  = string
+    cidr_blocks               = optional(list(string), [])
+    ipv6_cidr_blocks          = optional(list(string), [])
+    prefix_list_ids           = optional(list(string), [])
     source_security_group_id  = optional(string)
     source_security_group_ids = optional(list(string), [])
-    self                         = optional(bool, false)
+    self                      = optional(bool, false)
   }))
   default = []
 }
@@ -34,16 +34,16 @@ variable "ingress_rules" {
 variable "egress_rules" {
   description = "Outbound rules. Ignored when allow_all_egress is true."
   type = list(object({
-    description                  = optional(string, "Managed by Terraform")
-    from_port                    = number
-    to_port                      = number
-    protocol                     = string
-    cidr_blocks                  = optional(list(string), [])
-    ipv6_cidr_blocks             = optional(list(string), [])
-    prefix_list_ids              = optional(list(string), [])
+    description               = optional(string, "Managed by Terraform")
+    from_port                 = number
+    to_port                   = number
+    protocol                  = string
+    cidr_blocks               = optional(list(string), [])
+    ipv6_cidr_blocks          = optional(list(string), [])
+    prefix_list_ids           = optional(list(string), [])
     source_security_group_id  = optional(string)
     source_security_group_ids = optional(list(string), [])
-    self                         = optional(bool, false)
+    self                      = optional(bool, false)
   }))
   default = []
 }
