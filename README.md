@@ -13,6 +13,7 @@ separate infrastructure repository that consumes these modules.
 ├── aws-ecr/                 # Multiple ECR repositories
 ├── aws-eks/                 # EKS cluster, managed nodes, IAM roles
 ├── aws-ec2/                 # EC2 instance and optional security group
+├── aws-security-group/      # Standalone VPC security group
 └── examples/
     └── production/          # Root-module example that connects everything
 ```
@@ -105,6 +106,30 @@ module "ec2" {
     protocol    = "tcp"
     cidr_blocks = ["203.0.113.10/32"]
   }]
+}
+
+module "app_sg" {
+  source = "git::https://github.com/YOUR_ORG/terraform-aws-modules.git//aws-security-group?ref=v1.0.0"
+
+  name   = "paywave-prod-app-sg"
+  vpc_id = module.vpc.vpc_id
+
+  ingress_rules = [
+    {
+      description = "Application HTTP"
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = ["10.0.0.0/16"]
+    },
+    {
+      description = "SSH from bastion"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      source_security_group_id = module.bastion_sg.security_group_id
+    },
+  ]
 }
 ```
 
